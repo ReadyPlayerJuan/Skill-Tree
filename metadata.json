@@ -1,0 +1,14 @@
+{
+"name":"SkillTree",
+"internalname":"SkillTree",
+"version":"0.0.0",
+"Description":"Additional skills and upgrades that the player can unlock as they level up.",
+"author":"nick seel",
+"dependencies": [
+	{
+	"name": "Cyclone",
+	"version": "0.1.4",
+	"optional": false
+	}
+]
+}
