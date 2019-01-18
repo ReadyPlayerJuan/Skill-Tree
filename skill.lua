@@ -1,7 +1,7 @@
 
 Skill = {}
 
-function Skill:new(name, description_template, variable_description_values, num_levels, icon)
+function Skill:new(name, description_template, variable_description_values, num_levels, icon, skill_effect, skill_effect_values)
   local t = setmetatable({}, { __index = Skill })
   
   if(icon) then
@@ -20,6 +20,8 @@ function Skill:new(name, description_template, variable_description_values, num_
   t.variable_description_values = variable_description_values or {}
   t.current_level = 0
   t.num_levels = num_levels or 1
+  t.skill_effect = skill_effect
+  t.skill_effect_values = skill_effect_values
   
   t.hover_frame_count = 0
   
@@ -29,7 +31,7 @@ function Skill:new(name, description_template, variable_description_values, num_
   t.parents = {}
   t.children = {}
   
-  t:updateDescription()
+  t:refresh()
   
   registercallback("onStep", function()
     if(t.button and t.button.highlighted) then
@@ -47,17 +49,12 @@ function Skill:resetLevel()
 end
 
 function Skill:increaseLevel()
-  self:resetEffect()
+  if(self.skill_effect) then self.skill_effect:deactivate() end
+  
   self.current_level = self.current_level + 1
-  self:enactEffect()
-end
-
-function Skill:resetEffect()
-  --reset skill's effect here
-end
-
-function Skill:enactEffect()
-  --enact skills effect at current level here
+  self:refresh()
+  
+  if(self.skill_effect) then self.skill_effect:activate() end
 end
 
 function Skill:addChildren(...)
@@ -70,6 +67,9 @@ end
 function Skill:refresh()--skill_available, skill_point_available)
   --self.skill_available = skill_available
   --self.skill_point_available = skill_point_available
+  
+  if(self.skill_effect) then self.skill_effect:setValues(self.skill_effect_values[self.current_level + 1]) end
+  --set skill_effect values and activate or deactivate
   
   self:updateDescription()
 end

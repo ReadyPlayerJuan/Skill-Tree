@@ -7,10 +7,13 @@ require("bin")
 require("skill")
 require("skilltree")
 
+require("skill_effect")
+require("commando_skills")
+
 registercallback("onPlayerInit", function(player)
   local skilltree = SkillTree:new()
   
-  local skill_1 = Skill:new("fun skill", "increase fun by |0|, and decrease enemy fun by |1|.", {{"10%%", "20%%", "30%%"}, {"15%%", "35%%", "90%%"}}, 3, "skill")
+  local skill_1 = Skill:new("fun skill", "increase fun by |0|, and decrease enemy fun by |1|.", {{"10%%", "20%%", "30%%"}, {"15%%", "35%%", "90%%"}}, 3, "skill", TestSkillEffect.new(), {{0},{1},{2},{3}})
   local skill_2 = Skill:new("test2", "test desc 2 |0|, and more info here |1|.", {{"10%%", "20%%", "30%%"}, {"15%%", "35%%", "90%%"}}, 3, nil)
   local skill_3 = Skill:new("test3", "test desc 3 |0|, and more info here |1|.", {{"10%%", "20%%", "30%%"}, {"15%%", "35%%", "90%%"}}, 3, nil)
   local skill_4 = Skill:new("test4", "test desc 4 |0|, and more info here |1|.", {{"10%%", "20%%", "30%%"}, {"15%%", "35%%", "90%%"}}, 3, nil)

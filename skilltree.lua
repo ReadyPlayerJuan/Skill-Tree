@@ -54,9 +54,10 @@ function SkillTree:refresh()
     if(#_skill.parents == 0 or _skill.current_level == _skill.num_levels) then
       _skill.skill_available = true
     elseif(#_skill.parents > 0) then
+      _skill.skill_available = true
       for i, parent in ipairs(_skill.parents) do
-        if(parent.current_level == parent.num_levels) then
-          _skill.skill_available = true
+        if(parent.current_level ~= parent.num_levels) then
+          _skill.skill_available = false
         end
       end
     end
@@ -199,10 +200,11 @@ function SkillTree:buttonPressed(id, name)
   if(self.points_available > 0) then
     for i, skilldata in ipairs(self.skills) do
       local _skill = skilldata[1]
-      Cyclone.terminal.write(id.." ".._skill.name.." "..tostring(_skill.skill_available))
+      --Cyclone.terminal.write(id.." ".._skill.name.." "..tostring(_skill.skill_available))
       if _skill.name == id and _skill.skill_available and _skill.current_level < _skill.num_levels then
-        Cyclone.terminal.write("PRESSED: "..id)
+        --Cyclone.terminal.write("PRESSED: "..id)
         _skill:increaseLevel()
+        self.points_available = self.points_available - 1
   
         self:refresh()
       end
