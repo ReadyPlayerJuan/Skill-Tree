@@ -44,17 +44,17 @@ function Skill:new(name, description_template, variable_description_values, num_
   return t
 end
 
+function Skill:setLevel(level)
+  self.current_level = level
+  self:refresh()
+end
+
 function Skill:resetLevel()
-  self.current_level = 0
+  self:setLevel(0)
 end
 
 function Skill:increaseLevel()
-  if(self.skill_effect) then self.skill_effect:deactivate() end
-  
-  self.current_level = self.current_level + 1
-  self:refresh()
-  
-  if(self.skill_effect) then self.skill_effect:activate() end
+  self:setLevel(self.current_level + 1)
 end
 
 function Skill:addChildren(...)
@@ -64,12 +64,19 @@ function Skill:addChildren(...)
   end
 end
 
-function Skill:refresh()--skill_available, skill_point_available)
-  --self.skill_available = skill_available
-  --self.skill_point_available = skill_point_available
+function Skill:refresh()
+  if(self.skill_effect) then
+    self.skill_effect:setValues(self.skill_effect_values[self.current_level + 1])
+    
+    if(self.skill_effect.deactivate_at_level_zero) then
+      if(self.current_level == 0) then
+        self.skill_effect:deactivateEffect()
+      else
+        self.skill_effect:activateEffect()
+      end
+    end
+  end
   
-  if(self.skill_effect) then self.skill_effect:setValues(self.skill_effect_values[self.current_level + 1]) end
-  --set skill_effect values and activate or deactivate
   
   self:updateDescription()
 end
