@@ -1,7 +1,7 @@
 
 Skill = {}
 
-function Skill:new(name, description_template, variable_description_values, num_levels, icon, skill_effect, skill_effect_values)
+function Skill:new(name, description_template, variable_description_values, num_levels, icon, skill_effect, skill_effect_values, icon_x, icon_y)
   local t = setmetatable({}, { __index = Skill })
   
   if(icon) then
@@ -22,6 +22,9 @@ function Skill:new(name, description_template, variable_description_values, num_
   t.num_levels = num_levels or 1
   t.skill_effect = skill_effect
   t.skill_effect_values = skill_effect_values
+  
+  t.icon_x = icon_x
+  t.icon_y = icon_y
   
   t.hover_frame_count = 0
   
