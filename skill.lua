@@ -27,8 +27,10 @@ function Skill:new(name, description_template, variable_description_values, num_
   
   t.icon_x = icon_x
   t.icon_y = icon_y
+  t.button = nil
   
   t.hover_frame_count = 0
+  t.unhover_frame_count = 0
   
   t.skill_point_available = false
   t.skill_available = false
@@ -41,8 +43,13 @@ function Skill:new(name, description_template, variable_description_values, num_
   registercallback("onStep", function()
     if(t.button and t.button.highlighted) then
       t.hover_frame_count = t.hover_frame_count + 1
+      t.unhover_frame_count = 0
     else
-      t.hover_frame_count = 0
+      t.unhover_frame_count = t.unhover_frame_count + 1
+      
+      if(t.unhover_frame_count > 1) then
+        t.hover_frame_count = 0
+      end
     end
   end)
   
