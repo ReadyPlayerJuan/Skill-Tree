@@ -3,20 +3,20 @@ function CommandoSkillTree()
   local skilltree = SkillTree:new()
   
   local skill_test = Skill:new("fun skill",
-      "increase fun by |0|, and decrease enemy fun by |1|.",
+      "&y&increase fun by |0|,\nand decrease enemy fun by |1|.&!&",
       {{"10%%", "20%%", "30%%"}, {"15%%", "35%%", "90%%"}}, 3,
       nil, TestSkillEffect.new(), {{0},{1},{2},{3}}, 
       0.5, 0)
   
-  local skill_health = Skill:new("bonus health",
-      "increases max health by |0|.",
+  local skill_health = Skill:new("Bonus Health",
+      "increases max health by &y&|0|.&!&",
       {{"50", "100", "150", "200", "250"}}, 5,
       "health", FlatHealthSkillEffect.new(), {{0},{50},{100},{150},{200},{250}}, 
       1.5, 0)
   
-  local skill_damage_x = Skill:new("x damage",
-      "increase x damage by |0|%%.",
-      {{"50%%", "100%%", "150%%"}}, 3,
+  local skill_damage_x = Skill:new("More Metal Jackets",
+      "increases &or&Full Metal Jacket&!& damage by &y&|0|.&!&",
+      {{"1.5x", "2.0x", "2.5x"}}, 3,
       "skill", ProjectileDamageSkillEffect:new("commando", 2), {{0},{.5},{1},{1.5}}, 
       0, 1)
   

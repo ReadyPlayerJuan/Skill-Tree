@@ -15,8 +15,10 @@ function Skill:new(name, description_template, variable_description_values, num_
   end
   
   t.name = name or "unnamed"
+  t.name_trimmed = removeColorFormatting(name)
   t.description_template = description_template or "no description available"
   t.description = t.description_template
+  t.description_trimmed = t.description_template
   t.variable_description_values = variable_description_values or {}
   t.current_level = 0
   t.num_levels = num_levels or 1
@@ -87,13 +89,6 @@ end
 function Skill:updateDescription()
   local desc = self.description_template
   
-  if(not skill_available) then
-    local color_keys = {"&r&","&g&","&b&","&y&","&or&","&bl&","&lt&","&dk&","&w&","&p&","&!&"}
-    for i=1, #color_keys do
-      desc = desc:gsub(color_keys[i], "")
-    end
-  end
-  
   for i=0, #self.variable_description_values-1 do
     local new_val = ""
     if(self.current_level == 0) then
@@ -101,13 +96,14 @@ function Skill:updateDescription()
     else
       new_val = self.variable_description_values[i+1][self.current_level+0]
       if (self.skill_available and self.skill_point_available and self.current_level < self.num_levels) then
-        new_val = new_val.." ("..(self.variable_description_values[i+1][self.current_level+1])..")"
+        new_val = new_val.." &g&("..(self.variable_description_values[i+1][self.current_level+1])..")"--&!&"
       end
     end
     desc = desc:gsub("|"..tostring(i).."|", new_val)
   end
   
   self.description = desc
+  self.description_trimmed = removeColorFormatting(desc)
   return desc
 end
 
