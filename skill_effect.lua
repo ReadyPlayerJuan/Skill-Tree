@@ -69,7 +69,7 @@ end
 
 --change damage of one ability by a percentage (value of 0.5 = 50% damage increase)
 ProjectileDamageSkillEffect = SkillEffect:new(true)
-function ProjectileDamageSkillEffect:new(survivor_name, skill_index, subclass)
+function ProjectileDamageSkillEffect:new(survivor_name, skill_index, expected_damage_pct, subclass)
   local t = setmetatable({}, { __index = ProjectileDamageSkillEffect })
   
   t.values = {0}
@@ -79,7 +79,9 @@ function ProjectileDamageSkillEffect:new(survivor_name, skill_index, subclass)
   t.skill_index = skill_index or 0
   t.last_used_skill_index = 0
   t.last_used_skill_timer = 0
-  
+  t.expected_damage_pct = expected_damage_pct
+  t.max_error = 0.05
+
   if(not subclass) then t:initEffect() end
   return t
 end
@@ -107,15 +109,23 @@ function ProjectileDamageSkillEffect:initEffect()
   end)
   registercallback("onFire", function(damager)
     if(self.active) then
-      for _, player in ipairs(misc.players) do
-        if(player:get("id") == damager:get("parent")) then
-          if(self.skill_index == self.last_used_skill_index and self.last_used_skill_timer == 0) then
+      if(damager:get("team") == "player" and self.skill_index == self.last_used_skill_index and self.last_used_skill_timer == 0) then
+        for _, player in ipairs(misc.players) do
+          if(player:get("id") == damager:get("parent")) then
+            local _crit = damager:get("critical")
             local _prev_damage = damager:get("damage")
-            local _prev_damage_fake = damager:get("damage_fake")
-            local _new_damage = _prev_damage * (1 + self.values[1])
-            local _new_damage_fake = _prev_damage_fake * (1 + self.values[1])
-            damager:set("damage", _new_damage)
-            damager:set("damage_fake", _new_damage_fake)
+            local _expected_damage = player:get("damage") * self.expected_damage_pct * (1 + _crit)
+            local _error = abs(_expected_damage - _prev_damage) / _prev_damage
+            
+            --Cyclone.terminal.write(_expected_damage.."  "..damager:get("damage").."  "..(100*_error).."% error")
+            if(_error < self.max_error) then
+              
+              local _prev_damage_fake = damager:get("damage_fake")
+              local _new_damage = _prev_damage * (1 + self.values[1])
+              local _new_damage_fake = _prev_damage_fake * (1 + self.values[1])
+              damager:set("damage", _new_damage)
+              damager:set("damage_fake", _new_damage_fake)
+            end
             --Cyclone.terminal.write("set damage "..self.last_used_skill_index.."   timer: "..self.last_used_skill_timer)
           end
         end

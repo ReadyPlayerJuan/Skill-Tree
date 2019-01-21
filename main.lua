@@ -5,6 +5,7 @@ local _missingicon = Sprite.load("missing_icon","res/missing.png", 1,11,11)
 
 function min(a, b) if(a < b) then return a else return b end end
 function max(a, b) if(a > b) then return a else return b end end
+function abs(a) if(a < 0) then return -a end return a end
 function string:split(sep)
    local sep, fields = sep or ":", {}
    local pattern = string.format("([^%s]+)", sep)

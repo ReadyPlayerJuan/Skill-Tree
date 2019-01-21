@@ -17,7 +17,7 @@ function CommandoSkillTree()
   local skill_damage_x = Skill:new("More Metal Jackets",
       "increases &or&Full Metal Jacket&!& damage by &y&|0|.&!&",
       {{"1.5x", "2.0x", "2.5x"}}, 3,
-      "skill", ProjectileDamageSkillEffect:new("commando", 2), {{0},{.5},{1},{1.5}}, 
+      "skill", ProjectileDamageSkillEffect:new("commando", 2, 1.833333), {{0},{.5},{1},{1.5}}, 
       0, 1)
   
   local skill_4 = Skill:new("test4",
