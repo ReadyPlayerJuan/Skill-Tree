@@ -1,4 +1,21 @@
 
+
+customcallbacks = {}
+function createcustomcallback(string)
+  customcallbacks[string] = {}
+  
+  callback = function(...)
+    for _,v in ipairs(customcallbacks[string]) do
+      v(...)
+    end
+  end
+  return callback
+end
+function registercustomcallback(string, func)
+  table.insert(customcallbacks[string], func)
+end
+
+
 player_skill_trees = {}
 
 local _missingicon = Sprite.load("missing_icon","res/missing.png", 1,11,11)
