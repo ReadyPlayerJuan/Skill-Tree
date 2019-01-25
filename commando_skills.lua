@@ -1,5 +1,26 @@
 
+require("ability_listener")
+
+--[[
+  ideas:
+    roll reset on kill
+    suppressive fire lasts longer
+    suppressive fire lasts until you release key
+    FMJ does bonus damage point blank
+    bonus damage at low health
+    roll goes farther
+    half attackspeed, z always crits
+]]
+
 function CommandoSkillTree()
+  addSurvivorAbilityData("Commando", {
+    {}, --z ability
+    {CALLBACK_HIT, {CHECK_DAMAGE, function(damage) local a = ((damage * 11) / 6) + 0.5 if damage % 2 == 0 then a = a + 0.5 end return a end, 0.0},
+                    {CHECK_ATTRIBUTE, "knockback", 6--[[expected]], 0.0--[[error]]}}, --x ability
+    {}, --c ability
+    {}, --v ability
+  })
+  
   local skilltree = SkillTree:new()
   
   local skill_test = Skill:new("fun skill",
