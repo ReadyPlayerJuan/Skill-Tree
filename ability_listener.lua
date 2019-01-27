@@ -1,6 +1,8 @@
 
 
 local callback_on_ability_damager = createcustomcallback("onAbilityDamager")
+local callback_start_ability = createcustomcallback("startAbility")
+local callback_end_ability = createcustomcallback("endAbility")
 
 player_skill_timers = {}
 survivor_ability_data = {}
@@ -32,7 +34,7 @@ function addSurvivorAbilityData(survivor_name, skill_data)
     data.skill_timer = 0
     data.skill_active = true
     
-    --callback_onAbility(player, skill_index)
+    callback_start_ability(player, data.skill_index)
   end)
   survivor:addCallback("onSkill", function(player, skill)
     local data = player_skill_timers[player:get("id")]
@@ -47,6 +49,10 @@ registercallback("onStep", function()
       data.skill_active = false
       data.skill_timer = data.skill_timer + 1
     else
+      if(data.skill_index ~= 0) then
+        callback_end_ability(Object.findInstance(id), data.skill_index)
+      end
+      
       data.skill_index = 0
       data.skill_timer = 0
     end

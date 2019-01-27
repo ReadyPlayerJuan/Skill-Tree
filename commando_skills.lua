@@ -1,5 +1,6 @@
 
 require("ability_listener")
+require("skill_effect")
 
 --[[
   ideas:
@@ -38,13 +39,14 @@ function CommandoSkillTree()
   local skill_damage_x = Skill:new("More Metal Jackets",
       "increases &or&Full Metal Jacket&!& damage by &y&|0|.&!&",
       {{"1.5x", "2.0x", "2.5x"}}, 3,
-      "skill", ProjectileDamageSkillEffect:new("commando", 2, 1.833333), {{0},{.5},{1},{1.5}}, 
+      "skill", ProjectileDamageSkillEffect:new("commando", 2), {{0},{.5},{1},{1.5}}, 
       0, 1)
   
-  local skill_4 = Skill:new("test4",
-      "test desc 4 |0|, and more info here |1|.",
-      {{"10%%", "20%%", "30%%"}, {"15%%", "35%%", "90%%"}}, 3,
-      nil, nil, nil, 1, 1)
+  local skill_4 = Skill:new("Roll Speed",
+      "Increases move speed while rolling by |0|.",
+      {{"1.5x", "2.0x"}}, 2,
+      nil, MoveSpeedDuringAbilitySkillEffect:new("commando", 3), {{0},{0.5},{1}},
+      1, 1)
   
   local skill_5 = Skill:new("test5",
       "test desc 5 |0|, and more info here |1|.",
@@ -56,8 +58,8 @@ function CommandoSkillTree()
       {{"10%%", "20%%", "30%%"}, {"15%%", "35%%", "90%%"}}, 3,
       nil, nil, nil, 1.5, 2)
   
-  skill_test:addChildren(skill_4)
-  skill_health:addChildren(skill_4, skill_5)
+  --skill_test:addChildren(skill_4)
+  --skill_health:addChildren(skill_4, skill_5)
   skill_5:addChildren(skill_6)
   
   skilltree:addSkill(skill_test)

@@ -72,11 +72,11 @@ end
 
 --change damage of one ability by a percentage (value of 0.5 = 50% damage increase)
 ProjectileDamageSkillEffect = SkillEffect:new(true)
-function ProjectileDamageSkillEffect:new(survivor_name, skill_index, expected_damage_pct, subclass)
+function ProjectileDamageSkillEffect:new(survivor_name, skill_index, subclass)
   local t = setmetatable({}, { __index = ProjectileDamageSkillEffect })
   
   t.values = {0}
-  t.active = true
+  t.active = false
   t.deactivate_at_level_zero = true
   t.survivor = Survivor.find(survivor_name)
   t.skill_index = skill_index or 0
@@ -86,7 +86,7 @@ function ProjectileDamageSkillEffect:new(survivor_name, skill_index, expected_da
 end
 function ProjectileDamageSkillEffect:initEffect()
   registercustomcallback("onAbilityDamager", function(player, skill_index, damager)
-    if skill_index == self.skill_index and player:getSurvivor() == self.survivor then
+    if self.active and skill_index == self.skill_index and player:getSurvivor() == self.survivor then
       local _prev_damage = damager:get("damage")
       local _prev_damage_fake = damager:get("damage_fake")
       local _new_damage = _prev_damage * (1 + self.values[1])
@@ -99,5 +99,45 @@ function ProjectileDamageSkillEffect:initEffect()
 end
 function ProjectileDamageSkillEffect:setValues(values)
   self.values = values
-  self.active = true--(self.values[1] > 0)
+  self.active = (self.values[1] > 0)
+end
+
+
+--increases speed during player ability (value of 0.5 = 50% damage increase)
+--note: speed artifact breaks this so must be disabled
+Artifact.find("Spirit").disabled = true
+MoveSpeedDuringAbilitySkillEffect = SkillEffect:new(true)
+function MoveSpeedDuringAbilitySkillEffect:new(survivor_name, skill_index, subclass)
+  local t = setmetatable({}, { __index = MoveSpeedDuringAbilitySkillEffect })
+  
+  t.values = {0}
+  t.active = true
+  t.survivor = Survivor.find(survivor_name)
+  t.skill_index = skill_index or 0
+  
+  t.prev_speed = 0
+
+  if(not subclass) then t:initEffect() end
+  return t
+end
+function MoveSpeedDuringAbilitySkillEffect:initEffect()
+  --[[registercallback("onPlayerStep", function(player)
+    Cyclone.terminal.write(player:get("pHmax"))
+  end)]]
+  registercustomcallback("startAbility", function(player, skill_index)
+    if self.active and skill_index == self.skill_index and player:getSurvivor() == self.survivor then
+      self.prev_speed = player:get("pHmax")
+      player:set("pHmax", self.prev_speed * (1 + self.values[1]))
+      --Cyclone.terminal.write(player:get("pHmax"))
+    end
+  end)
+  registercustomcallback("endAbility", function(player, skill_index)
+    if self.active and skill_index == self.skill_index and player:getSurvivor() == self.survivor then
+      player:set("pHmax", self.prev_speed)
+      --Cyclone.terminal.write(player:get("pHmax"))
+    end
+  end)
+end
+function MoveSpeedDuringAbilitySkillEffect:setValues(values)
+  self.values = values
 end
