@@ -29,11 +29,11 @@ function TestSkillEffect:new(subclass)
   return t
 end
 function TestSkillEffect:initEffect()
-  registercallback("onStep", function()
+  registercustomcallback("onStep", function()
     if(self.active) then
       Cyclone.terminal.write("test skill: "..tostring(self.values[1]))
     end
-  end)
+  end, true)
 end
 function TestSkillEffect:setValues(values)
   self.values = values
@@ -95,7 +95,7 @@ function AbilityDamageSkillEffect:initEffect()
       damager:set("damage", _new_damage)
       damager:set("damage_fake", _new_damage_fake)
     end
-  end)
+  end, true)
 end
 function AbilityDamageSkillEffect:setValues(values)
   self.values = values
@@ -122,7 +122,7 @@ function AbilityCooldownSkillEffect:initEffect()
     if self.active and skill_index == self.skill_index and player:get("id") == self.player_id then
       player:setAlarm(skill_index + 1, player:getAlarm(skill_index + 1) * (1 + self.values[1]))
     end
-  end)
+  end, true)
 end
 function AbilityCooldownSkillEffect:setValues(values)
   self.values = values
@@ -149,7 +149,7 @@ function MoveSpeedDuringAbilitySkillEffect:new(player_id, skill_index, subclass)
   return t
 end
 function MoveSpeedDuringAbilitySkillEffect:initEffect()
-  --[[registercallback("onPlayerStep", function(player)
+  --[[registercustomcallback("onPlayerStep", function(player)
     Cyclone.terminal.write(player:get("pHmax"))
   end)]]
   registercustomcallback("startAbility", function(player, skill_index)
@@ -158,13 +158,13 @@ function MoveSpeedDuringAbilitySkillEffect:initEffect()
       player:set("pHmax", self.prev_speed * (1 + self.values[1]))
       --Cyclone.terminal.write(player:get("pHmax"))
     end
-  end)
+  end, true)
   registercustomcallback("endAbility", function(player, skill_index)
     if self.active and skill_index == self.skill_index and player:get("id") == self.player_id then
       player:set("pHmax", self.prev_speed)
       --Cyclone.terminal.write(player:get("pHmax"))
     end
-  end)
+  end, true)
 end
 
 
@@ -183,17 +183,17 @@ function AbilityResetOnKillSkillEffect:new(player_id, skill_index, subclass)
   return t
 end
 function AbilityResetOnKillSkillEffect:initEffect()
-  --[[registercallback("onPlayerStep", function(player)
+  --[[registercustomcallback("onPlayerStep", function(player)
     Cyclone.terminal.write(player:get("pHmax"))
   end)]]
-  registercallback("onNPCDeathProc", function(npc, player)
+  registercustomcallback("onNPCDeathProc", function(npc, player)
     if self.active and player:get("id") == self.player_id then
       local prev_timer_value = player:getAlarm(self.skill_index + 1)
       local new_timer_value = math.floor(prev_timer_value * (1 - self.values[1]))
       player:setAlarm(self.skill_index+1, new_timer_value)
       --Cyclone.terminal.write(player:get("pHmax"))
     end
-  end)
+  end, true)
 end
 
 
@@ -216,7 +216,7 @@ function HealOnCritSkillEffect:new(player_id, flat_healing, missing_healing, sub
   return t
 end
 function HealOnCritSkillEffect:initEffect()
-  registercallback("onHit", function(damager, hit, x, y)
+  registercustomcallback("onHit", function(damager, hit, x, y)
     if self.active and damager:get("parent") == self.player_id then
       if damager:get("critical") == 1 then
         local player = Object.findInstance(self.player_id)
@@ -234,8 +234,8 @@ function HealOnCritSkillEffect:initEffect()
         self.frame_healing = self.frame_healing + heal
       end
     end
-  end)
-  registercallback("onStep", function()
+  end, true)
+  registercustomcallback("onStep", function()
     self.frame_healing = self.frame_healing + self.heal_remainder
     self.heal_remainder = self.frame_healing - math.floor(self.frame_healing)
     self.frame_healing = math.floor(self.frame_healing)
@@ -247,7 +247,7 @@ function HealOnCritSkillEffect:initEffect()
     end
     
     self.frame_healing = 0
-  end)
+  end, true)
 end
 function HealOnCritSkillEffect:setValues(values)
   self.values = values
@@ -275,7 +275,6 @@ function AttackSpeedSkillEffect:setValues(values)
   
   self.values = values
 end
-registercallback("onPlayerStep", function(player) Cyclone.w(player:get("attack_speed")) end)
 
 
 
@@ -294,7 +293,7 @@ function PersistentAttackSpeedSkillEffect:new(player_id, subclass)
   return t
 end
 function PersistentAttackSpeedSkillEffect:initEffect()
-  registercallback("onStep", function()
+  registercustomcallback("onStep", function()
     if self.active then
       local player = Object.findInstance(self.player_id)
       local new_attack_speed = player:get("attack_speed")
@@ -305,7 +304,7 @@ function PersistentAttackSpeedSkillEffect:initEffect()
       end
       --Cyclone.terminal.write(player:get("attack_speed"))
     end
-  end)
+  end, true)
 end
 function PersistentAttackSpeedSkillEffect:setValues(values)
   if values[1] ~= self.values[1] then
@@ -347,7 +346,7 @@ function AlwaysCritSkillEffect:initEffect()
         damager:set("damage_fake", damager:get("damage_fake") * player:get("critical_damage"))
       end
     end
-  end)
+  end, true)
 end
 function AlwaysCritSkillEffect:setValues(values)
   self.values = values

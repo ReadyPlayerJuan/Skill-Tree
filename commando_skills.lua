@@ -133,8 +133,8 @@ function PointBlankFMJSkillEffect:initEffect()
         damager:set("FMJ_start_x", player.x)
       end
     end
-  end)
-  registercallback("onHit", function(damager, hit, x, y)
+  end, true)
+  registercustomcallback("onHit", function(damager, hit, x, y)
     if damager:get("FMJ_start_x") ~= nil then
       local dist = math.abs(damager:get("FMJ_start_x") - x)
       local player = Object.findInstance(self.player_id)
@@ -153,7 +153,7 @@ function PointBlankFMJSkillEffect:initEffect()
         end
       end
     end
-  end)
+  end, true)
 end
 function PointBlankFMJSkillEffect:setValues(values)
   self.values = values
