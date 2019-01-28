@@ -70,9 +70,9 @@ end
 
 
 --change damage of one ability by a percentage (value of 0.5 = 50% damage increase)
-ProjectileDamageSkillEffect = SkillEffect:new(true)
-function ProjectileDamageSkillEffect:new(player_id, skill_index, subclass)
-  local t = setmetatable({}, { __index = ProjectileDamageSkillEffect })
+AbilityDamageSkillEffect = SkillEffect:new(true)
+function AbilityDamageSkillEffect:new(player_id, skill_index, subclass)
+  local t = setmetatable({}, { __index = AbilityDamageSkillEffect })
   
   t.values = {0}
   t.active = false
@@ -82,7 +82,7 @@ function ProjectileDamageSkillEffect:new(player_id, skill_index, subclass)
   if(not subclass) then t:initEffect() end
   return t
 end
-function ProjectileDamageSkillEffect:initEffect()
+function AbilityDamageSkillEffect:initEffect()
   registercustomcallback("onAbilityDamager", function(player, skill_index, damager)
     if self.active and skill_index == self.skill_index and player:get("id") == self.player_id then
       local _prev_damage = damager:get("damage")
@@ -94,7 +94,33 @@ function ProjectileDamageSkillEffect:initEffect()
     end
   end)
 end
-function ProjectileDamageSkillEffect:setValues(values)
+function AbilityDamageSkillEffect:setValues(values)
+  self.values = values
+  self.active = (self.values[1] > 0)
+end
+
+
+--change cooldown of one ability by a percentage (value of -0.5 = 50% cooldown decrease)
+AbilityCooldownSkillEffect = SkillEffect:new(true)
+function AbilityCooldownSkillEffect:new(player_id, skill_index, subclass)
+  local t = setmetatable({}, { __index = AbilityCooldownSkillEffect })
+  
+  t.values = {0}
+  t.active = false
+  t.player_id = player_id
+  t.skill_index = skill_index or 0
+
+  if(not subclass) then t:initEffect() end
+  return t
+end
+function AbilityCooldownSkillEffect:initEffect()
+  registercustomcallback("startAbility", function(player, skill_index)
+    if self.active and skill_index == self.skill_index and player:get("id") == self.player_id then
+      player:setAlarm(skill_index + 1, player:getAlarm(skill_index + 1) * (1 + self.values[1]))
+    end
+  end)
+end
+function AbilityCooldownSkillEffect:setValues(values)
   self.values = values
   self.active = (self.values[1] > 0)
 end

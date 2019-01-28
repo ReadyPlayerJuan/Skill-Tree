@@ -29,41 +29,41 @@ function CommandoSkillTree(player_id)
   local skill_test = Skill:new("Crit Healing (title wip)",
       "Critical hits heal for &y&|0|&!& of missing health.",
       {{"2%%", "3.5%%", "5%%"}}, 3,
-      nil, HealOnCritSkillEffect:new(player_id, false, true), {{0},{0.02},{0.035},{0.05}}, 
+      nil, {HealOnCritSkillEffect:new(player_id, false, true)}, {{{0},{0.02},{0.035},{0.05}}}, 
       0.5, 0)
   
   local skill_health = Skill:new("Bonus Health",
       "increases max health by &y&|0|.&!&",
       {{"50", "100", "150", "200", "250"}}, 5,
-      "health", FlatHealthSkillEffect:new(player_id), {{0},{50},{100},{150},{200},{250}}, 
+      "health", {FlatHealthSkillEffect:new(player_id)}, {{{0},{50},{100},{150},{200},{250}}}, 
       1.5, 0)
   
   local skill_damage_fmj = Skill:new("More Metal Jackets",
       "increases &or&Full Metal Jacket&!& damage by &y&|0|.&!&",
-      {{"1.5x", "2.0x", "2.5x"}}, 3,
-      "skill", ProjectileDamageSkillEffect:new(player_id, 2), {{0},{.5},{1},{1.5}}, 
+      {{"1.25x", "1.5x", "1.75x", "2.0x"}}, 4,
+      "skill", {AbilityDamageSkillEffect:new(player_id, 2)}, {{{0},{.25},{.5},{.75},{1}}}, 
       0, 1)
   
   local skill_roll_speed = Skill:new("Rounder Knees",
       "Increases move speed while in &or&Tactical Dive&!& by &y&|0|.&!&",
-      {{"1.5x", "2.0x"}}, 2,
-      nil, MoveSpeedDuringAbilitySkillEffect:new(player_id, 3), {{0},{0.5},{1}},
+      {{"1.3x", "1.6x"}}, 2,
+      nil, {MoveSpeedDuringAbilitySkillEffect:new(player_id, 3)}, {{{0},{0.3},{0.6}}},
       1, 1)
   
   local skill_roll_cd = Skill:new("Acrobatics",
-      "On kill, refunds &y&|0|&!& of &or&Tactical Dive's&!& remaining cooldown.",
-      {{"25%%", "50%%", "100%%"}}, 3,
-      nil, AbilityResetOnKillSkillEffect:new(player_id, 3), {{0},{0.25},{0.5},{1.0}}, 2, 1)
+      "On kill, refunds &y&|0|&!& of &or&Tactical Dive's&!& remaining cooldown,\nbut the base cooldown is &y&|1|&!& longer.",
+      {{"25%%", "50%%", "100%%"}, {"1.5x", "2.0x", "3.0x"}}, 3,
+      nil, {AbilityResetOnKillSkillEffect:new(player_id, 3), AbilityCooldownSkillEffect:new(player_id, 3)}, {{{0},{0.25},{0.5},{1.0}}, {{0},{0.5},{1.0},{2.0}}}, 2, 1)
   
   local skill_point_blank_fmj = Skill:new("Point Blank",
       "&or&Full Metal Jacket&!& always crits at very close range.",
       {}, 1,
-      nil, PointBlankFMJSkillEffect:new(player_id, 2), {{0},{20}}, 1.5, 2)
+      nil, {PointBlankFMJSkillEffect:new(player_id, 2)}, {{{0},{20}}}, 1.5, 2)
   
   local skill_attack_speed_for_crit = Skill:new("Steady Aim",
       "Attack speed is permanently cut by &y&|0|,&!& but &or&Double Tap&!& and\n&or&Suppressive Fire&!& always crit.",
-      {{"30%%"}}, 1,
-      nil, AttackSpeedForCritsSkillEffect:new(player_id, 1, 4), {{1},{0.3}}, 1, 3)
+      {{"40%%"}}, 1,
+      nil, {AttackSpeedForCritsSkillEffect:new(player_id, 1, 4)}, {{{0},{-0.4}}}, 1, 3)
     
   
   --skill_test:addChildren(skill_roll_speed)
@@ -140,7 +140,7 @@ AttackSpeedForCritsSkillEffect = SkillEffect:new(true)
 function AttackSpeedForCritsSkillEffect:new(player_id, skill_index, skill_index_2, subclass)
   local t = setmetatable({}, { __index = AttackSpeedForCritsSkillEffect })
   
-  t.values = {1}
+  t.values = {0}
   t.active = false
   t.player_id = player_id
   t.skill_index = skill_index or 0
@@ -157,19 +157,19 @@ function AttackSpeedForCritsSkillEffect:initEffect()
       local player = Object.findInstance(self.player_id)
       local new_attack_speed = player:get("attack_speed")
       if new_attack_speed ~= self.prev_attack_speed then
-        new_attack_speed = self.prev_attack_speed + ((new_attack_speed - self.prev_attack_speed) * self.values[1])
+        new_attack_speed = self.prev_attack_speed + ((new_attack_speed - self.prev_attack_speed) * (1 + self.values[1]))
         self.prev_attack_speed = new_attack_speed
         player:set("attack_speed", new_attack_speed)
       end
     end
   end)
-  registercallback("preHit", function(damager)
+  --[[registercallback("preHit", function(damager)
     if damager:get("parent") == self.player_id then
       local player = Object.findInstance(self.player_id)
-      Cyclone.terminal.write("dmg  "..player:get("damage").." "..damager:get("damage"))
-      Cyclone.terminal.write("stun  "..damager:get("stun"))
+      --Cyclone.terminal.write("dmg  "..player:get("damage").." "..damager:get("damage"))
+      --Cyclone.terminal.write("stun  "..damager:get("stun"))
     end
-  end)
+  end)]]
   registercustomcallback("onAbilityDamager", function(player, skill_index, damager)
     if self.active and (skill_index == self.skill_index or skill_index == self.skill_index_2) and player:get("id") == self.player_id then
       if damager:get("critical") == 0 then
@@ -183,11 +183,11 @@ end
 function AttackSpeedForCritsSkillEffect:setValues(values)
   if values[1] ~= self.values[1] then
     local player = Object.findInstance(self.player_id)
-    local new_attack_speed = player:get("attack_speed") * (values[1] / self.values[1])
+    local new_attack_speed = player:get("attack_speed") * ((1 + values[1]) / (1 + self.values[1]))
     player:set("attack_speed", new_attack_speed)
     self.prev_attack_speed = new_attack_speed
     
     self.values = values
-    self.active = (self.values[1] ~= 1)
+    self.active = (self.values[1] ~= 0)
   end
 end

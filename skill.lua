@@ -1,7 +1,7 @@
 
 Skill = {}
 
-function Skill:new(name, description_template, variable_description_values, num_levels, icon, skill_effect, skill_effect_values, icon_x, icon_y)
+function Skill:new(name, description_template, variable_description_values, num_levels, icon, skill_effects, skill_effect_values, icon_x, icon_y)
   local t = setmetatable({}, { __index = Skill })
   
   if(icon) then
@@ -22,7 +22,7 @@ function Skill:new(name, description_template, variable_description_values, num_
   t.variable_description_values = variable_description_values or {}
   t.current_level = 0
   t.num_levels = num_levels or 1
-  t.skill_effect = skill_effect
+  t.skill_effects = skill_effects
   t.skill_effect_values = skill_effect_values
   
   t.icon_x = icon_x
@@ -77,9 +77,10 @@ function Skill:addChildren(...)
 end
 
 function Skill:refresh()
-  if(self.skill_effect) then
-    self.skill_effect:setValues(self.skill_effect_values[self.current_level + 1])
-    
+  if(self.skill_effects) then
+    for i,skill_effect in ipairs(self.skill_effects) do
+      skill_effect:setValues(self.skill_effect_values[i][self.current_level + 1])
+    end
     --[[if(self.skill_effect.deactivate_at_level_zero) then
       if(self.current_level == 0) then
         self.skill_effect:deactivateEffect()
