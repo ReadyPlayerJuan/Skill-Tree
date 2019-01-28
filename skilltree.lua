@@ -126,7 +126,7 @@ function SkillTree:renderDescriptionBox(skill)
   local _title_text_x = (_SKILL_SIZE + _BUTTON_BORDER) * _SKILL_SCALE / 2 + _DESCRIPTION_BORDER * 2 + 3
   _description_box_width = max(_description_box_width, _title_text_x + graphics.textWidth(skill.name_trimmed, graphics.FONT_LARGE) + _DESCRIPTION_BORDER*2)
   
-  _description_box_width = max(_description_box_width, _DESCRIPTION_BORDER + _DESCRIPTION_TEXT_X_PADDING*2 + graphics.textWidth(skill.description, graphics.FONT_DEFAULT))
+  _description_box_width = max(_description_box_width, _DESCRIPTION_BORDER + _DESCRIPTION_TEXT_X_PADDING*2 + graphics.textWidth(skill.description_trimmed, graphics.FONT_DEFAULT))
   _description_box_height = max(_description_box_height, _DESCRIPTION_BORDER*3 + (_SKILL_SIZE + _BUTTON_BORDER) * _SKILL_SCALE / 2 + graphics.textHeight(skill.description_trimmed, graphics.FONT_DEFAULT))
   
   

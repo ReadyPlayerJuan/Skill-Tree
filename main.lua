@@ -45,15 +45,20 @@ require("skilltree")
 require("skill_effect")
 require("commando_skills")
 
+skill_trees = {}
+skill_trees["Commando"] = CommandoSkillTree
+
 registercallback("onPlayerInit", function(player)
   local player_id = player:get("id")
-  local commando_skill_tree = CommandoSkillTree(player_id)
+  local survivor_name = player:getSurvivor():getName()
+  local skill_tree_func = skill_trees[survivor_name]
   
-  player_skill_trees[player_id] = commando_skill_tree
-  commando_skill_tree:addPoints(10)
-  --player:set("skilltree", skilltree)
-  
-  local survivor = player:getSurvivor()
+  if skill_tree_func ~= nil then
+    local skill_tree = skill_tree_func(player_id)
+    
+    player_skill_trees[player_id] = skill_tree
+    skill_tree:addPoints(10)
+  end
 end)
 
 registercallback("onPlayerLevelUp", function(player)

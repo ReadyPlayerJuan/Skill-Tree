@@ -1,4 +1,5 @@
 
+local debug_messages = false
 
 local callback_on_ability_damager = createcustomcallback("onAbilityDamager")
 local callback_start_ability = createcustomcallback("startAbility")
@@ -82,19 +83,23 @@ function damager_checks(callback_type, damager)
                 
                 --Cyclone.terminal.write(_damage.." "..player:get("damage").."-".._expected_damage.." ".._error)
                 if(_error <= check[3]) then
-                  --Cyclone.terminal.write("ABILITY PASSES NEAR DAMAGE CHECK")
+                  if debug_messages then Cyclone.terminal.write("ABILITY "..data.skill_index.." PASSES NEAR DAMAGE CHECK") end
                 else
+                  if debug_messages then Cyclone.terminal.write("ABILITY "..data.skill_index.." FAILS NEAR DAMAGE CHECK: ".._error.."%") end
+                  
                   passed_checks = false
                 end
                 
               elseif check[1] == CHECK_ATTRIBUTE then
                 local _attrib = damager:get(check[2])
-                local _error = abs(_attrib - check[3]) / _attrib
+                local _error = abs(_attrib - check[3]) / max(0.01, _attrib)
                 
                 --Cyclone.terminal.write("attrib "..check[2].." expected: "..check[3].."  actual: ".._attrib.."  error: ".._error)
                 if(_error <= check[4]) then
-                  --Cyclone.terminal.write("ABILITY PASSES NEAR ATTRIBUTE CHECK")
+                  if debug_messages then Cyclone.terminal.write("ABILITY "..data.skill_index.." PASSES NEAR ATTRIBUTE CHECK") end
                 else
+                  if debug_messages then Cyclone.terminal.write("ABILITY "..data.skill_index.." FAILS NEAR ATTRIBUTE CHECK: "..check[2].." ".._error.."%") end
+                  
                   passed_checks = false
                 end
                 
@@ -103,15 +108,15 @@ function damager_checks(callback_type, damager)
           end
           
           if(passed_checks) then
-            --Cyclone.terminal.write("ABILITY PASSES ALL CHECKS")
+            if debug_messages then Cyclone.terminal.write("ABILITY "..data.skill_index.." PASSES ALL CHECKS") end
             callback_on_ability_damager(player, data.skill_index, damager)
           end
         end
       end
     end
   end
-  
 end
+
 registercallback("preHit", function(damager)
   if(damager:get("damager_checked") == nil) then
     damager:set("damager_checked", 1)
