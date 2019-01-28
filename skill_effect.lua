@@ -56,17 +56,16 @@ function FlatHealthSkillEffect:setValues(values)
   self.prev_values = self.values
   self.values = values
   
-  for _, player in ipairs(misc.players) do
-    local _prev_maxhp = player:get("maxhp_base")
-    local _new_maxhp = _prev_maxhp + (self.values[1] - self.prev_values[1])
-    
-    local _prev_hp = player:get("hp")
-    local _new_hp = min(_prev_hp, _new_maxhp)
-    
-    player:set("maxhp_base", _new_maxhp)
-    player:set("maxhp", _new_maxhp)
-    player:set("hp", _new_hp)
-  end
+  local player = Object.findInstance(self.player_id)
+  local _prev_maxhp = player:get("maxhp_base")
+  local _new_maxhp = _prev_maxhp + (self.values[1] - self.prev_values[1])
+  
+  local _prev_hp = player:get("hp")
+  local _new_hp = min(_prev_hp, _new_maxhp)
+  
+  player:set("maxhp_base", _new_maxhp)
+  player:set("maxhp", _new_maxhp)
+  player:set("hp", _new_hp)
 end
 
 
@@ -77,7 +76,6 @@ function ProjectileDamageSkillEffect:new(player_id, skill_index, subclass)
   
   t.values = {0}
   t.active = false
-  t.deactivate_at_level_zero = true
   t.player_id = player_id
   t.skill_index = skill_index or 0
 
@@ -93,7 +91,6 @@ function ProjectileDamageSkillEffect:initEffect()
       local _new_damage_fake = _prev_damage_fake * (1 + self.values[1])
       damager:set("damage", _new_damage)
       damager:set("damage_fake", _new_damage_fake)
-      Cyclone.terminal.write("set damage")
     end
   end)
 end
@@ -168,7 +165,7 @@ function AbilityResetOnKillSkillEffect:initEffect()
 end
 
 
---reduces ability cooldown on kill (value of 0.2 = 20% cooldown refunded)
+--restores health on a crit. can be flat healing, pct healing, or pct missing health healing
 HealOnCritSkillEffect = SkillEffect:new(true)
 function HealOnCritSkillEffect:new(player_id, flat_healing, missing_healing, subclass)
   local t = setmetatable({}, { __index = HealOnCritSkillEffect })
@@ -221,9 +218,5 @@ function HealOnCritSkillEffect:initEffect()
 end
 function HealOnCritSkillEffect:setValues(values)
   self.values = values
-  if(self.values[1] > 0) then
-    self.active = true
-  else
-    self.active = false
-  end
+  self.active = (self.values[1] > 0)
 end
