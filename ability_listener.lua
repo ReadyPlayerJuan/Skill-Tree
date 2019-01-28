@@ -79,7 +79,7 @@ function damager_checks(callback_type, damager)
                 local _crit = damager:get("critical")
                 local _damage = damager:get("damage")
                 local _expected_damage = check[2](player:get("damage")) * (1 + _crit)
-                local _error = abs(_damage - _expected_damage) / _damage
+                local _error = math.abs(_damage - _expected_damage) / _damage
                 
                 --Cyclone.terminal.write(_damage.." "..player:get("damage").."-".._expected_damage.." ".._error)
                 if(_error <= check[3]) then
@@ -92,7 +92,7 @@ function damager_checks(callback_type, damager)
                 
               elseif check[1] == CHECK_ATTRIBUTE then
                 local _attrib = damager:get(check[2])
-                local _error = abs(_attrib - check[3]) / max(0.01, _attrib)
+                local _error = math.abs(_attrib - check[3]) / math.max(0.01, _attrib)
                 
                 --Cyclone.terminal.write("attrib "..check[2].." expected: "..check[3].."  actual: ".._attrib.."  error: ".._error)
                 if(_error <= check[4]) then

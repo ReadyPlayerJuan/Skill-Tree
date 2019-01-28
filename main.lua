@@ -16,13 +16,7 @@ function registercustomcallback(string, func)
 end
 
 
-player_skill_trees = {}
-
 local _missingicon = Sprite.load("missing_icon","res/missing.png", 1,11,11)
-
-function min(a, b) if(a < b) then return a else return b end end
-function max(a, b) if(a > b) then return a else return b end end
-function abs(a) if(a < 0) then return -a end return a end
 function string:split(sep)
    local sep, fields = sep or ":", {}
    local pattern = string.format("([^%s]+)", sep)
@@ -38,6 +32,13 @@ function removeColorFormatting(string)
   return str
 end
 
+registercallback("onFire", function(damager)
+  if damager:get("team") == "player" and damager:get("critical") == 1 then
+    local player = Object.findInstance(damager:get("parent"))
+    damager:set("damage", damager:get("damage") * player:get("critical_damage") / 2)
+  end
+end)
+
 require("bin")
 require("skill")
 require("skilltree")
@@ -48,7 +49,11 @@ require("commando_skills")
 skill_trees = {}
 skill_trees["Commando"] = CommandoSkillTree
 
+player_skill_trees = {}
+
 registercallback("onPlayerInit", function(player)
+  player:set("critical_damage", 20) --crit multiplier, default = 200%
+  
   local player_id = player:get("id")
   local survivor_name = player:getSurvivor():getName()
   local skill_tree_func = skill_trees[survivor_name]
@@ -59,6 +64,14 @@ registercallback("onPlayerInit", function(player)
     player_skill_trees[player_id] = skill_tree
     skill_tree:addPoints(10)
   end
+end)
+
+registercallback("onGameEnd", function()
+  for id,skill_tree in pairs(player_skill_trees) do
+    skill_tree:destroy()
+    skill_tree = nil
+  end
+  player_skill_trees = {}
 end)
 
 registercallback("onPlayerLevelUp", function(player)
