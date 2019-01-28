@@ -46,9 +46,10 @@ require("skill_effect")
 require("commando_skills")
 
 registercallback("onPlayerInit", function(player)
-  local commando_skill_tree = CommandoSkillTree()
+  local player_id = player:get("id")
+  local commando_skill_tree = CommandoSkillTree(player_id)
   
-  player_skill_trees[player:get("id")] = commando_skill_tree
+  player_skill_trees[player_id] = commando_skill_tree
   commando_skill_tree:addPoints(10)
   --player:set("skilltree", skilltree)
   

@@ -80,13 +80,13 @@ function Skill:refresh()
   if(self.skill_effect) then
     self.skill_effect:setValues(self.skill_effect_values[self.current_level + 1])
     
-    if(self.skill_effect.deactivate_at_level_zero) then
+    --[[if(self.skill_effect.deactivate_at_level_zero) then
       if(self.current_level == 0) then
         self.skill_effect:deactivateEffect()
       else
         self.skill_effect:activateEffect()
       end
-    end
+    end]]
   end
   
   

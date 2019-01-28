@@ -8,7 +8,6 @@ function SkillEffect:new(subclass)
   
   t.values = {}
   t.active = false
-  t.deactivate_at_level_zero = false
   
   return t
 end
@@ -43,11 +42,12 @@ end
 
 --flat health bonus
 FlatHealthSkillEffect = SkillEffect:new(true)
-function FlatHealthSkillEffect:new(subclass)
+function FlatHealthSkillEffect:new(player_id, subclass)
   local t = setmetatable({}, { __index = FlatHealthSkillEffect })
   
   t.values = {0}
   t.prev_values = {0}
+  t.player_id = player_id
   
   if(not subclass) then t:initEffect() end
   return t
@@ -72,13 +72,13 @@ end
 
 --change damage of one ability by a percentage (value of 0.5 = 50% damage increase)
 ProjectileDamageSkillEffect = SkillEffect:new(true)
-function ProjectileDamageSkillEffect:new(survivor_name, skill_index, subclass)
+function ProjectileDamageSkillEffect:new(player_id, skill_index, subclass)
   local t = setmetatable({}, { __index = ProjectileDamageSkillEffect })
   
   t.values = {0}
   t.active = false
   t.deactivate_at_level_zero = true
-  t.survivor = Survivor.find(survivor_name)
+  t.player_id = player_id
   t.skill_index = skill_index or 0
 
   if(not subclass) then t:initEffect() end
@@ -86,7 +86,7 @@ function ProjectileDamageSkillEffect:new(survivor_name, skill_index, subclass)
 end
 function ProjectileDamageSkillEffect:initEffect()
   registercustomcallback("onAbilityDamager", function(player, skill_index, damager)
-    if self.active and skill_index == self.skill_index and player:getSurvivor() == self.survivor then
+    if self.active and skill_index == self.skill_index and player:get("id") == self.player_id then
       local _prev_damage = damager:get("damage")
       local _prev_damage_fake = damager:get("damage_fake")
       local _new_damage = _prev_damage * (1 + self.values[1])
@@ -103,16 +103,16 @@ function ProjectileDamageSkillEffect:setValues(values)
 end
 
 
---increases speed during player ability (value of 0.5 = 50% damage increase)
+--increases speed during player ability (value of 0.5 = 50% speed increase)
 --note: speed artifact breaks this so must be disabled
 Artifact.find("Spirit").disabled = true
 MoveSpeedDuringAbilitySkillEffect = SkillEffect:new(true)
-function MoveSpeedDuringAbilitySkillEffect:new(survivor_name, skill_index, subclass)
+function MoveSpeedDuringAbilitySkillEffect:new(player_id, skill_index, subclass)
   local t = setmetatable({}, { __index = MoveSpeedDuringAbilitySkillEffect })
   
   t.values = {0}
   t.active = true
-  t.survivor = Survivor.find(survivor_name)
+  t.player_id = player_id
   t.skill_index = skill_index or 0
   
   t.prev_speed = 0
@@ -125,19 +125,44 @@ function MoveSpeedDuringAbilitySkillEffect:initEffect()
     Cyclone.terminal.write(player:get("pHmax"))
   end)]]
   registercustomcallback("startAbility", function(player, skill_index)
-    if self.active and skill_index == self.skill_index and player:getSurvivor() == self.survivor then
+    if self.active and skill_index == self.skill_index and player:get("id") == self.player_id then
       self.prev_speed = player:get("pHmax")
       player:set("pHmax", self.prev_speed * (1 + self.values[1]))
       --Cyclone.terminal.write(player:get("pHmax"))
     end
   end)
   registercustomcallback("endAbility", function(player, skill_index)
-    if self.active and skill_index == self.skill_index and player:getSurvivor() == self.survivor then
+    if self.active and skill_index == self.skill_index and player:get("id") == self.player_id then
       player:set("pHmax", self.prev_speed)
       --Cyclone.terminal.write(player:get("pHmax"))
     end
   end)
 end
-function MoveSpeedDuringAbilitySkillEffect:setValues(values)
-  self.values = values
+
+
+--reduces ability cooldown on kill (value of 0.2 = 20% cooldown refunded)
+AbilityResetOnKillSkillEffect = SkillEffect:new(true)
+function AbilityResetOnKillSkillEffect:new(player_id, skill_index, subclass)
+  local t = setmetatable({}, { __index = AbilityResetOnKillSkillEffect })
+  
+  t.values = {0}
+  t.active = true
+  t.player_id = player_id
+  t.skill_index = skill_index or 0
+
+  if(not subclass) then t:initEffect() end
+  return t
+end
+function AbilityResetOnKillSkillEffect:initEffect()
+  --[[registercallback("onPlayerStep", function(player)
+    Cyclone.terminal.write(player:get("pHmax"))
+  end)]]
+  registercallback("onNPCDeathProc", function(npc, player)
+    if self.active and player:get("id") == self.player_id then
+      local prev_timer_value = player:getAlarm(self.skill_index + 1)
+      local new_timer_value = math.floor(prev_timer_value * (1 - self.values[1]))
+      player:setAlarm(self.skill_index+1, new_timer_value)
+      --Cyclone.terminal.write(player:get("pHmax"))
+    end
+  end)
 end
