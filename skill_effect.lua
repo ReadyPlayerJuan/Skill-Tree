@@ -17,6 +17,7 @@ function SkillEffect:deactivateEffect() self.active = false end
 function SkillEffect:setValues(values) self.values = values end
 
 
+
 --test skill effect, prints its value
 TestSkillEffect = SkillEffect:new(true)
 function TestSkillEffect:new(subclass)
@@ -38,6 +39,7 @@ function TestSkillEffect:setValues(values)
   self.values = values
   self.active = (self.values[1] > 0)
 end
+
 
 
 --flat health bonus
@@ -67,6 +69,7 @@ function FlatHealthSkillEffect:setValues(values)
   player:set("maxhp", _new_maxhp)
   player:set("hp", _new_hp)
 end
+
 
 
 --change damage of one ability by a percentage (value of 0.5 = 50% damage increase)
@@ -100,6 +103,7 @@ function AbilityDamageSkillEffect:setValues(values)
 end
 
 
+
 --change cooldown of one ability by a percentage (value of -0.5 = 50% cooldown decrease)
 AbilityCooldownSkillEffect = SkillEffect:new(true)
 function AbilityCooldownSkillEffect:new(player_id, skill_index, subclass)
@@ -124,6 +128,7 @@ function AbilityCooldownSkillEffect:setValues(values)
   self.values = values
   self.active = (self.values[1] > 0)
 end
+
 
 
 --increases speed during player ability (value of 0.5 = 50% speed increase)
@@ -163,6 +168,7 @@ function MoveSpeedDuringAbilitySkillEffect:initEffect()
 end
 
 
+
 --reduces ability cooldown on kill (value of 0.2 = 20% cooldown refunded)
 AbilityResetOnKillSkillEffect = SkillEffect:new(true)
 function AbilityResetOnKillSkillEffect:new(player_id, skill_index, subclass)
@@ -189,6 +195,7 @@ function AbilityResetOnKillSkillEffect:initEffect()
     end
   end)
 end
+
 
 
 --restores health on a crit. can be flat healing, pct healing, or pct missing health healing
@@ -248,10 +255,34 @@ function HealOnCritSkillEffect:setValues(values)
 end
 
 
+
+--modifies player attack speed, the same way an item would
+AttackSpeedSkillEffect = SkillEffect:new(true)
+function AttackSpeedSkillEffect:new(player_id, subclass)
+  local t = setmetatable({}, { __index = AttackSpeedSkillEffect })
+  
+  t.values = {0}
+  t.active = false
+  t.player_id = player_id
+
+  if(not subclass) then t:initEffect() end
+  return t
+end
+function AttackSpeedSkillEffect:setValues(values)
+  local player = Object.findInstance(self.player_id)
+  
+  player:set("attack_speed", player:get("attack_speed") + values[1] - self.values[1])
+  
+  self.values = values
+end
+registercallback("onPlayerStep", function(player) Cyclone.w(player:get("attack_speed")) end)
+
+
+
 --permanent / persistent modifier for player attack speed (affects attack speed of buffs and attack speed items as well)
-GlobalAttackSpeedSkillEffect = SkillEffect:new(true)
-function GlobalAttackSpeedSkillEffect:new(player_id, subclass)
-  local t = setmetatable({}, { __index = GlobalAttackSpeedSkillEffect })
+PersistentAttackSpeedSkillEffect = SkillEffect:new(true)
+function PersistentAttackSpeedSkillEffect:new(player_id, subclass)
+  local t = setmetatable({}, { __index = PersistentAttackSpeedSkillEffect })
   
   t.values = {0}
   t.active = false
@@ -262,7 +293,7 @@ function GlobalAttackSpeedSkillEffect:new(player_id, subclass)
   if(not subclass) then t:initEffect() end
   return t
 end
-function GlobalAttackSpeedSkillEffect:initEffect()
+function PersistentAttackSpeedSkillEffect:initEffect()
   registercallback("onStep", function()
     if self.active then
       local player = Object.findInstance(self.player_id)
@@ -276,11 +307,12 @@ function GlobalAttackSpeedSkillEffect:initEffect()
     end
   end)
 end
-function GlobalAttackSpeedSkillEffect:setValues(values)
+function PersistentAttackSpeedSkillEffect:setValues(values)
   if values[1] ~= self.values[1] then
     local player = Object.findInstance(self.player_id)
     local new_attack_speed = player:get("attack_speed") * ((1 + values[1]) / (1 + self.values[1]))
     self.prev_attack_speed = self.prev_attack_speed * ((1 + values[1]) / (1 + self.values[1]))
+    if self.values[1] == 0 then self.prev_attack_speed = new_attack_speed end
     player:set("attack_speed", new_attack_speed)
     
     self.values = values
@@ -289,7 +321,8 @@ function GlobalAttackSpeedSkillEffect:setValues(values)
 end
 
 
---permanent / persistent modifier for player attack speed (affects attack speed of buffs and attack speed items as well)
+
+--makes certain abilities always crit
 AlwaysCritSkillEffect = SkillEffect:new(true)
 function AlwaysCritSkillEffect:new(player_id, skill_index, skill_index_2, subclass)
   local t = setmetatable({}, { __index = AlwaysCritSkillEffect })
@@ -320,6 +353,7 @@ function AlwaysCritSkillEffect:setValues(values)
   self.values = values
   self.active = (self.values[1] ~= 0)
 end
+
 
 
 --modifies the damage dealt by critical hits. default=2.0 (0.5 = 2.5x damage)

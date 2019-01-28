@@ -6,8 +6,8 @@ require("skill_effect")
   ideas:
     suppressive fire lasts longer
     suppressive fire lasts until you release key
-    bonus damage at low health
-    half attackspeed, z always crits
+    bonus attack speed at low health
+    suppressive fire is faster
 ]]
 
 function CommandoSkillTree(player_id)
@@ -37,21 +37,28 @@ function CommandoSkillTree(player_id)
       "Critical hits deal &y&|0|&!& extra damage. (&y&|1|&!& damage total)",
       {{"10%%", "20%%", "30%%", "40%%", "50%%"}, {"210%%", "220%%", "230%%", "240%%", "250%%"}}, 5,
       nil, {CritDamageSkillEffect:new(player_id)},
-      {{{0},{0.1},{0.2},{0.3},{0.4},{0.5}}}, 
+      {{{0},{0.1},{0.2},{0.3},{0.4},{0.5}}},
       2.5, 0)
   
-  local sk_health = Skill:new("Bonus Health",
+  local sk_health = Skill:new("Resilient",
       "Increases max health by &y&|0|.&!&",
       {{"50", "100", "150", "200", "250"}}, 5,
       "health", {FlatHealthSkillEffect:new(player_id)},
       {{{0},{50},{100},{150},{200},{250}}}, 
       1.5, 0)
   
+  local sk_attack_speed = Skill:new("Itchy Trigger Finger",
+      "Increases attack speed by &y&|0|.&!&",
+      {{"7%%", "14%%", "21%%", "28%%", "35%%"}}, 5,
+      "health", {AttackSpeedSkillEffect:new(player_id)},
+      {{{0},{0.07},{0.14},{0.21},{0.28},{0.35}}}, 
+      3.5, 0)
+  
   local sk_damage_fmj = Skill:new("More Metal Jackets",
       "increases &or&Full Metal Jacket&!& damage by &y&|0|.&!&",
-      {{"1.25x", "1.5x", "1.75x", "2.0x"}}, 4,
+      {{"1.15x", "1.3x", "1.45x", "1.6x"}}, 4,
       "skill", {AbilityDamageSkillEffect:new(player_id, 2)},
-      {{{0},{.25},{.5},{.75},{1}}}, 
+      {{{0},{.15},{.3},{.45},{.6}}}, 
       0, 1)
   
   local sk_roll_speed = Skill:new("Rounder Knees",
@@ -76,9 +83,9 @@ function CommandoSkillTree(player_id)
   
   local sk_attack_speed_for_crit = Skill:new("Steady Aim",
       "Attack speed is permanently cut by &y&|0|,&!& but &or&Double Tap&!& and\n&or&Suppressive Fire&!& always crit.",
-      {{"33%%"}}, 1,
-      nil, {GlobalAttackSpeedSkillEffect:new(player_id), AlwaysCritSkillEffect:new(player_id, 1, 4)},
-      {{{0},{-0.33}}, {{0},{1}}},
+      {{"45%%"}}, 1,
+      nil, {PersistentAttackSpeedSkillEffect:new(player_id), AlwaysCritSkillEffect:new(player_id, 1, 4)},
+      {{{0},{-0.45}}, {{0},{1}}},
       1, 3)
     
   
@@ -89,6 +96,7 @@ function CommandoSkillTree(player_id)
   skilltree:addSkill(sk_crit_healing)
   skilltree:addSkill(sk_crit_damage)
   skilltree:addSkill(sk_health)
+  skilltree:addSkill(sk_attack_speed)
   skilltree:addSkill(sk_damage_fmj)
   skilltree:addSkill(sk_roll_speed)
   skilltree:addSkill(sk_roll_cd)
