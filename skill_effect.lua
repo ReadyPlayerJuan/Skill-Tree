@@ -166,3 +166,64 @@ function AbilityResetOnKillSkillEffect:initEffect()
     end
   end)
 end
+
+
+--reduces ability cooldown on kill (value of 0.2 = 20% cooldown refunded)
+HealOnCritSkillEffect = SkillEffect:new(true)
+function HealOnCritSkillEffect:new(player_id, flat_healing, missing_healing, subclass)
+  local t = setmetatable({}, { __index = HealOnCritSkillEffect })
+  
+  t.values = {0}
+  t.active = false
+  t.player_id = player_id
+  t.flat_healing = flat_healing or false
+  t.missing_healing = missing_healing or false
+  
+  t.frame_healing = 0
+  t.heal_remainder = 0
+
+  if(not subclass) then t:initEffect() end
+  return t
+end
+function HealOnCritSkillEffect:initEffect()
+  registercallback("onHit", function(damager, hit, x, y)
+    if self.active and damager:get("parent") == self.player_id then
+      if damager:get("critical") == 1 then
+        local player = Object.findInstance(self.player_id)
+        
+        local heal = 0
+        if self.flat_healing then
+          heal = self.values[1]
+        else
+          if self.missing_healing then
+            heal = (player:get("maxhp") - player:get("hp")) * self.values[1]
+          else
+            heal = player:get("maxhp") * self.values[1]
+          end
+        end
+        self.frame_healing = self.frame_healing + heal
+      end
+    end
+  end)
+  registercallback("onStep", function()
+    self.frame_healing = self.frame_healing + self.heal_remainder
+    self.heal_remainder = self.frame_healing - math.floor(self.frame_healing)
+    self.frame_healing = math.floor(self.frame_healing)
+    
+    if(self.frame_healing > 0) then
+      local player = Object.findInstance(self.player_id)
+      player:set("hp", player:get("hp") + math.min(player:get("maxhp"), self.frame_healing))
+      misc.damage(self.frame_healing, player.x, player.y-15, false, Color.DAMAGE_HEAL)
+    end
+    
+    self.frame_healing = 0
+  end)
+end
+function HealOnCritSkillEffect:setValues(values)
+  self.values = values
+  if(self.values[1] > 0) then
+    self.active = true
+  else
+    self.active = false
+  end
+end

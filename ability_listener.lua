@@ -82,7 +82,7 @@ function damager_checks(callback_type, damager)
                 
                 --Cyclone.terminal.write(_damage.." "..player:get("damage").."-".._expected_damage.." ".._error)
                 if(_error <= check[3]) then
-                  Cyclone.terminal.write("ABILITY PASSES NEAR DAMAGE CHECK")
+                  --Cyclone.terminal.write("ABILITY PASSES NEAR DAMAGE CHECK")
                 else
                   passed_checks = false
                 end
@@ -93,7 +93,7 @@ function damager_checks(callback_type, damager)
                 
                 --Cyclone.terminal.write("attrib "..check[2].." expected: "..check[3].."  actual: ".._attrib.."  error: ".._error)
                 if(_error <= check[4]) then
-                  Cyclone.terminal.write("ABILITY PASSES NEAR ATTRIBUTE CHECK")
+                  --Cyclone.terminal.write("ABILITY PASSES NEAR ATTRIBUTE CHECK")
                 else
                   passed_checks = false
                 end
@@ -103,8 +103,7 @@ function damager_checks(callback_type, damager)
           end
           
           if(passed_checks) then
-            Cyclone.terminal.write("ABILITY PASSES ALL CHECKS")
-            --Cyclone.terminal.write(damager:get("climb").." "..damager:get("damage"))
+            --Cyclone.terminal.write("ABILITY PASSES ALL CHECKS")
             callback_on_ability_damager(player, data.skill_index, damager)
           end
         end
