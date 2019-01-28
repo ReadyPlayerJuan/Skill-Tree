@@ -28,8 +28,13 @@ end)
 function addSurvivorAbilityData(survivor_name, skill_data)
   survivor_ability_data[survivor_name] = skill_data
   
+  local survivor_use_skill_callback = createcustomcallback("useSkill-"..survivor_name)
+  local survivor_on_skill_callback = createcustomcallback("onSkill-"..survivor_name)
+  
   local survivor = Survivor.find(survivor_name)
   survivor:addCallback("useSkill", function(player, skill)
+    survivor_use_skill_callback(player, skill)
+    
     local data = player_skill_timers[player:get("id")]
     data.skill_index = skill
     data.skill_timer = 0
@@ -38,6 +43,8 @@ function addSurvivorAbilityData(survivor_name, skill_data)
     callback_start_ability(player, data.skill_index)
   end)
   survivor:addCallback("onSkill", function(player, skill)
+    survivor_on_skill_callback(player, skill)
+      
     local data = player_skill_timers[player:get("id")]
     data.skill_active = true
   end)

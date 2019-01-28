@@ -26,7 +26,7 @@ function CommandoSkillTree(player_id)
   
   local skilltree = SkillTree:new()
   
-  local sk_crit_healing = Skill:new("Crit Healing (title wip)",
+  local sk_crit_healing = Skill:new("Lifelink",
       "Critical hits heal for &y&|0|&!& of missing health.",
       {{"2%%", "3.5%%", "5%%"}}, 3,
       nil, {HealOnCritSkillEffect:new(player_id, false, true)},
@@ -61,6 +61,12 @@ function CommandoSkillTree(player_id)
       {{{0},{.15},{.3},{.45},{.6}}}, 
       0, 1)
   
+  local sk_point_blank_fmj = Skill:new("Point Blank",
+      "&or&Full Metal Jacket&!& always crits at very close range.",
+      {}, 1,
+      nil, {PointBlankFMJSkillEffect:new(player_id)}, {{{0},{20}}},
+      1.5, 2)
+  
   local sk_roll_speed = Skill:new("Rounder Knees",
       "Increases distance travelled while in &or&Tactical Dive&!& by &y&|0|.&!&",
       {{"1.3x", "1.6x"}}, 2,
@@ -75,18 +81,19 @@ function CommandoSkillTree(player_id)
       {{{0},{0.25},{0.5},{1.0}}, {{0},{0.5},{1.0},{2.0}}},
       2, 1)
   
-  local sk_point_blank_fmj = Skill:new("Point Blank",
-      "&or&Full Metal Jacket&!& always crits at very close range.",
-      {}, 1,
-      nil, {PointBlankFMJSkillEffect:new(player_id, 2)}, {{{0},{20}}},
-      1.5, 2)
-  
   local sk_attack_speed_for_crit = Skill:new("Steady Aim",
       "Attack speed is permanently cut by &y&|0|,&!& but &or&Double Tap&!& and\n&or&Suppressive Fire&!& always crit.",
       {{"45%%"}}, 1,
       nil, {PersistentAttackSpeedSkillEffect:new(player_id), AlwaysCritSkillEffect:new(player_id, 1, 4)},
-      {{{0},{-0.45}}, {{0},{1}}},
+      {{{0},{-0.5}}, {{0},{1}}},
       1, 3)
+  
+  local sk_continuous_suppressive_fire = Skill:new("Endless Clip",
+      "doot doot motherfucker",
+      {{"45%%"}}, 1,
+      nil, {ContinuousSuppressiveFireSkillEffect:new(player_id)},
+      {{{0},{1}}},
+      2, 3)
     
   
   --skill_test:addChildren(skill_roll_speed)
@@ -102,6 +109,7 @@ function CommandoSkillTree(player_id)
   skilltree:addSkill(sk_roll_cd)
   skilltree:addSkill(sk_point_blank_fmj)
   skilltree:addSkill(sk_attack_speed_for_crit)
+  skilltree:addSkill(sk_continuous_suppressive_fire)
   skilltree:refresh()
   
   return skilltree
@@ -114,13 +122,13 @@ end
 --
 --full metal jacket will always crit at close range
 PointBlankFMJSkillEffect = SkillEffect:new(true)
-function PointBlankFMJSkillEffect:new(player_id, skill_index, subclass)
+function PointBlankFMJSkillEffect:new(player_id, subclass)
   local t = setmetatable({}, { __index = PointBlankFMJSkillEffect })
   
   t.values = {0}
   t.active = false
   t.player_id = player_id
-  t.skill_index = skill_index or 0
+  t.skill_index = 2
 
   if(not subclass) then t:initEffect() end
   return t
@@ -156,6 +164,78 @@ function PointBlankFMJSkillEffect:initEffect()
   end, true)
 end
 function PointBlankFMJSkillEffect:setValues(values)
+  self.values = values
+  self.active = (self.values[1] > 0)
+end
+
+
+
+--full metal jacket will always crit at close range
+ContinuousSuppressiveFireSkillEffect = SkillEffect:new(true)
+function ContinuousSuppressiveFireSkillEffect:new(player_id, subclass)
+  local t = setmetatable({}, { __index = ContinuousSuppressiveFireSkillEffect })
+  
+  t.values = {0}
+  t.active = false
+  t.player_id = player_id
+  t.skill_index = 4
+  
+  t.skill_held = false
+  t.skill_cooldown = 0
+  
+  t.skill_length = 0
+  t.skill_cutoff_length = 0
+  t.skill_timer = 0
+  t.prev_attack_speed = 0
+  
+  if(not subclass) then t:initEffect() end
+  return t
+end
+function ContinuousSuppressiveFireSkillEffect:initEffect()
+  --[[registercustomcallback("startAbility", function(player, skill_index)
+    if self.active and skill_index == self.skill_index and player:get("id") == self.player_id then
+      self.skill_held = true
+    end
+  end, true)]]
+  registercustomcallback("onSkill-Commando", function(player, skill_index)
+    if self.active and math.floor(skill_index) == self.skill_index and player:get("id") == self.player_id then
+      self.skill_timer = self.skill_timer + 1
+      local as = player:get("attack_speed")
+      if as ~= self.prev_attack_speed then
+        self.prev_attack_speed = as
+        self.skill_length = math.max(17, math.ceil(47 / as))
+        self.skill_cutoff_length = math.floor(self.skill_length * 0.85)
+      end
+      
+      local inp = player:control("ability4")
+      if inp == input.RELEASED or (self.skill_cutoff_length ~= 0 and self.skill_timer >= self.skill_cutoff_length) then
+        player:set("activity", 0)
+        player:set("activity_type", 0)
+      else
+        
+        if self.skill_cooldown == 0 then
+          self.skill_cooldown = player:getAlarm(5)
+        else
+          player:setAlarm(5, self.skill_cooldown)
+        end
+      end
+    end
+  end, true)
+  registercustomcallback("endAbility", function(player, skill_index)
+    if self.active and skill_index == self.skill_index and player:get("id") == self.player_id then
+      local inp = player:control("ability4")
+      
+      Cyclone.w(self.prev_attack_speed.." "..self.skill_timer)
+      self.skill_cooldown = 0
+      self.skill_timer = 0
+      if inp == input.HELD then
+        player:set("force_v", 1)
+        player:setAlarm(5, 0)
+      end
+    end
+  end, true)
+end
+function ContinuousSuppressiveFireSkillEffect:setValues(values)
   self.values = values
   self.active = (self.values[1] > 0)
 end
