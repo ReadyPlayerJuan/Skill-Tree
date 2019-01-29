@@ -27,6 +27,11 @@ skill_trees["Commando"] = CommandoSkillTree
 
 player_skill_trees = {}
 
+game_timer = 0
+registercallback("onStep", function()
+  game_timer = game_timer + 1
+end)
+
 registercallback("onPlayerInit", function(player)
   player:set("critical_damage", 2) --crit multiplier, default 2 = 200%
   
@@ -38,7 +43,7 @@ registercallback("onPlayerInit", function(player)
     local skill_tree = skill_tree_func(player_id)
     
     player_skill_trees[player_id] = skill_tree
-    skill_tree:addPoints(10)
+    --skill_tree:addPoints(10)
   end
 end)
 

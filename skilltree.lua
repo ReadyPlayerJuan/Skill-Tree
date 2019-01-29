@@ -8,6 +8,7 @@ local _BUTTON_BORDER = 2
 local _SKILL_BORDER_X = 8
 local _SKILL_BORDER_Y = 20
 local _WINDOW_BORDER = 12
+local _POINTS_TEXT_HEIGHT = 48
 local _SKILL_LEVEL_TEXT_HEIGHT = 10
 local _RELATION_LINE_TOP_X_OFFSET = 16
 local _RELATION_LINE_TOP_Y_OFFSET = 4
@@ -188,7 +189,7 @@ function SkillTree:render()
 		_button.spacing_x = (_SKILL_SIZE + _BUTTON_BORDER) * _SKILL_SCALE / 2
 		_button.spacing_y = (_SKILL_SIZE + _BUTTON_BORDER) * _SKILL_SCALE / 2
 		_button.x = _grid_x * _SKILL_SCALE * (_SKILL_SIZE + _SKILL_BORDER_X) + _WINDOW_BORDER - _BUTTON_BORDER
-		_button.y = _grid_y * _SKILL_SCALE * (_SKILL_SIZE + _SKILL_BORDER_Y) + _WINDOW_BORDER - _BUTTON_BORDER
+		_button.y = _grid_y * _SKILL_SCALE * (_SKILL_SIZE + _SKILL_BORDER_Y) + _WINDOW_BORDER - _BUTTON_BORDER + _POINTS_TEXT_HEIGHT
     local _button_size = (_SKILL_SIZE + _BUTTON_BORDER) * _SKILL_SCALE
     
     
@@ -318,7 +319,64 @@ function SkillTree:render()
   end
   
   local _width = (_SKILL_SIZE + _SKILL_BORDER_X) * _SKILL_SCALE * self.width - 2*_SKILL_BORDER_X + _WINDOW_BORDER * 2
-  local _height = (_SKILL_SIZE + _SKILL_BORDER_Y) * _SKILL_SCALE * self.height - 2*_SKILL_BORDER_Y + _WINDOW_BORDER * 2 + _SKILL_LEVEL_TEXT_HEIGHT
+  local _height = (_SKILL_SIZE + _SKILL_BORDER_Y) * _SKILL_SCALE * self.height - 2*_SKILL_BORDER_Y + _WINDOW_BORDER * 2 + _SKILL_LEVEL_TEXT_HEIGHT + _POINTS_TEXT_HEIGHT
+  
+  local _pointtextdrawfunction = function()
+    
+    if self.points_available > 0 then
+      local points_text
+      if self.points_available > 1 then
+        points_text = tostring(self.points_available).." POINTS REMAINING!"
+      else
+        points_text = "1 POINT REMAINING!"
+      end
+      
+      if math.fmod(math.floor(game_timer * 0.03), 2) == 0 then
+        graphics.color(Color.ROR_YELLOW)
+      else
+        graphics.color(Color.YELLOW)
+      end
+      for _,diff in ipairs({{-1, -1}, {-1, 1}, {1, -1}, {1, 1}}) do
+        graphics.print(points_text,
+          _width / 2 + diff[1],
+          (_WINDOW_BORDER + _POINTS_TEXT_HEIGHT) / 2 + diff[2],
+          graphics.FONT_LARGE,
+          graphics.ALIGN_MIDDLE,
+          graphics.ALIGN_CENTER)
+      end
+      graphics.color(Color.BLACK)
+      graphics.print(
+        points_text,
+        _width / 2,
+        (_WINDOW_BORDER + _POINTS_TEXT_HEIGHT) / 2,
+        graphics.FONT_LARGE,
+        graphics.ALIGN_MIDDLE,
+        graphics.ALIGN_CENTER)
+    else
+      local points_text = "NO POINTS REMAINING"
+      
+      graphics.color(Color.GRAY)
+      for _,diff in ipairs({{-1, -1}, {-1, 1}, {1, -1}, {1, 1}}) do
+        graphics.print(points_text,
+          _width / 2 + diff[1],
+          (_WINDOW_BORDER + _POINTS_TEXT_HEIGHT) / 2 + diff[2],
+          graphics.FONT_LARGE,
+          graphics.ALIGN_MIDDLE,
+          graphics.ALIGN_CENTER)
+      end
+      graphics.color(Color.BLACK)
+      graphics.print(
+        points_text,
+        _width / 2,
+        (_WINDOW_BORDER + _POINTS_TEXT_HEIGHT) / 2,
+        graphics.FONT_LARGE,
+        graphics.ALIGN_MIDDLE,
+        graphics.ALIGN_CENTER)
+    end
+  end
+  self.window:addElement(_pointtextdrawfunction)
+  
+  
   self.window:resize(_width, _height)
 end
 

@@ -35,30 +35,30 @@ function CommandoSkillTree(player_id)
   
   local sk_crit_damage = Skill:new("Lethal Precision",
       "Critical hits deal &y&|0|&!& extra damage. (&y&|1|&!& damage total)",
-      {{"10%%", "20%%", "30%%", "40%%", "50%%"}, {"210%%", "220%%", "230%%", "240%%", "250%%"}}, 5,
+      {{"12.5%%", "25%%", "37.5%%", "50%%"}, {"215.5%%", "225%%", "237.5%%", "250%%"}}, 4,
       nil, {CritDamageSkillEffect:new(player_id)},
-      {{{0},{0.1},{0.2},{0.3},{0.4},{0.5}}},
+      {{{0},{0.125},{0.25},{0.375},{0.5}}},
       2, 0)
   
   local sk_attack_speed = Skill:new("Itchy Trigger Finger",
       "Increases attack speed by &y&|0|.&!&",
-      {{"6%%", "12%%", "18%%", "24%%", "30%%"}}, 5,
+      {{"7.5%%", "15%%", "22.5%%", "30%%"}}, 4,
       "health", {AttackSpeedSkillEffect:new(player_id)},
-      {{{0},{0.06},{0.12},{0.18},{0.24},{0.30}}}, 
+      {{{0},{0.075},{0.15},{0.225},{0.30}}}, 
       4, 0.5)
   
   local sk_health = Skill:new("Resilient",
       "Increases max health by &y&|0|.&!&",
-      {{"50", "100", "150", "200", "250"}}, 5,
+      {{"80", "160", "240"}}, 3,
       "health", {FlatHealthSkillEffect:new(player_id)},
-      {{{0},{50},{100},{150},{200},{250}}}, 
+      {{{0},{80},{160},{240}}}, 
       0.5, 0)
   
   local sk_damage_fmj = Skill:new("More Metal Jackets",
       "&or&Full Metal Jacket&!& does &y&|0|&!& damage.",
-      {{"1.15x", "1.3x", "1.45x", "1.6x"}}, 4,
+      {{"1.2x", "1.4x", "1.6x"}}, 4,
       "skill", {AbilityDamageSkillEffect:new(player_id, 2)},
-      {{{0},{.15},{.3},{.45},{.6}}}, 
+      {{{0},{.2},{.4},{.6}}}, 
       3, 0)
   
   local sk_point_blank_fmj = Skill:new("Point Blank",
@@ -76,9 +76,9 @@ function CommandoSkillTree(player_id)
   
   local sk_faster_suppressive_fire = Skill:new("fast suppressive",
       "&or&Suppressive Fire&!& shoots &y&|0|&!& faster.",
-      {{"8%%","16%%","24%%","32%%"}}, 4,
+      {{"10%%","20%%","30%%"}}, 3,
       nil, {AttackSpeedDuringAbilitySkillEffect:new(player_id, 4)},
-      {{{0},{0.08},{0.16},{0.24},{0.32}}},
+      {{{0},{0.1},{0.2},{0.3}}},
       4, 1.5)
   
   local sk_continuous_suppressive_fire = Skill:new("Endless Clip",
@@ -90,9 +90,9 @@ function CommandoSkillTree(player_id)
   
   local sk_roll_speed = Skill:new("Rounder Knees",
       "&or&Tactical Dive&!& travels &y&|0|&!& more distance.",
-      {{"1.33x", "1.66x", "2.0x"}}, 3,
+      {{"1.5x", "2.0x"}}, 2,
       nil, {MoveSpeedDuringAbilitySkillEffect:new(player_id, 3)},
-      {{{0},{0.33},{0.66},{2.0}}},
+      {{{0},{0.5},{1.0}}},
       0, 1.5)
   
   local sk_roll_cd = Skill:new("Acrobatics",
