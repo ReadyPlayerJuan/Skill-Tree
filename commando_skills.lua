@@ -31,85 +31,96 @@ function CommandoSkillTree(player_id)
       {{"2%%", "3.5%%", "5%%"}}, 3,
       nil, {HealOnCritSkillEffect:new(player_id, false, true)},
       {{{0},{0.02},{0.035},{0.05}}}, 
-      0.5, 0)
+      1.5, 1)
   
   local sk_crit_damage = Skill:new("Lethal Precision",
       "Critical hits deal &y&|0|&!& extra damage. (&y&|1|&!& damage total)",
       {{"10%%", "20%%", "30%%", "40%%", "50%%"}, {"210%%", "220%%", "230%%", "240%%", "250%%"}}, 5,
       nil, {CritDamageSkillEffect:new(player_id)},
       {{{0},{0.1},{0.2},{0.3},{0.4},{0.5}}},
-      2.5, 0)
+      2, 0)
+  
+  local sk_attack_speed = Skill:new("Itchy Trigger Finger",
+      "Increases attack speed by &y&|0|.&!&",
+      {{"6%%", "12%%", "18%%", "24%%", "30%%"}}, 5,
+      "health", {AttackSpeedSkillEffect:new(player_id)},
+      {{{0},{0.06},{0.12},{0.18},{0.24},{0.30}}}, 
+      4, 0.5)
   
   local sk_health = Skill:new("Resilient",
       "Increases max health by &y&|0|.&!&",
       {{"50", "100", "150", "200", "250"}}, 5,
       "health", {FlatHealthSkillEffect:new(player_id)},
       {{{0},{50},{100},{150},{200},{250}}}, 
-      1.5, 0)
-  
-  local sk_attack_speed = Skill:new("Itchy Trigger Finger",
-      "Increases attack speed by &y&|0|.&!&",
-      {{"7%%", "14%%", "21%%", "28%%", "35%%"}}, 5,
-      "health", {AttackSpeedSkillEffect:new(player_id)},
-      {{{0},{0.07},{0.14},{0.21},{0.28},{0.35}}}, 
-      3.5, 0)
+      0.5, 0)
   
   local sk_damage_fmj = Skill:new("More Metal Jackets",
-      "increases &or&Full Metal Jacket&!& damage by &y&|0|.&!&",
+      "&or&Full Metal Jacket&!& does &y&|0|&!& damage.",
       {{"1.15x", "1.3x", "1.45x", "1.6x"}}, 4,
       "skill", {AbilityDamageSkillEffect:new(player_id, 2)},
       {{{0},{.15},{.3},{.45},{.6}}}, 
-      0, 1)
+      3, 0)
   
   local sk_point_blank_fmj = Skill:new("Point Blank",
       "&or&Full Metal Jacket&!& always crits at very close range.",
       {}, 1,
       nil, {PointBlankFMJSkillEffect:new(player_id)}, {{{0},{20}}},
-      1.5, 2)
-  
-  local sk_roll_speed = Skill:new("Rounder Knees",
-      "Increases distance travelled while in &or&Tactical Dive&!& by &y&|0|.&!&",
-      {{"1.3x", "1.6x"}}, 2,
-      nil, {MoveSpeedDuringAbilitySkillEffect:new(player_id, 3)},
-      {{{0},{0.3},{0.6}}},
-      1, 1)
-  
-  local sk_roll_cd = Skill:new("Acrobatics",
-      "On kill, refunds &y&|0|&!& of &or&Tactical Dive's&!& remaining cooldown,\nbut the base cooldown is &y&|1|&!& longer.",
-      {{"25%%", "50%%", "100%%"}, {"1.5x", "2.0x", "3.0x"}}, 3,
-      nil, {AbilityResetOnKillSkillEffect:new(player_id, 3), AbilityCooldownSkillEffect:new(player_id, 3)},
-      {{{0},{0.25},{0.5},{1.0}}, {{0},{0.5},{1.0},{2.0}}},
-      2, 1)
+      2.5, 1)
   
   local sk_attack_speed_for_crit = Skill:new("Steady Aim",
       "Attack speed is permanently cut by &y&|0|,&!& but &or&Double Tap&!& and\n&or&Suppressive Fire&!& always crit.",
       {{"45%%"}}, 1,
       nil, {PersistentAttackSpeedSkillEffect:new(player_id), AlwaysCritSkillEffect:new(player_id, 1, 4)},
-      {{{0},{-0.5}}, {{0},{1}}},
-      1, 3)
+      {{{0},{-0.45}}, {{0},{1}}},
+      2, 2)
+  
+  local sk_faster_suppressive_fire = Skill:new("fast suppressive",
+      "&or&Suppressive Fire&!& shoots &y&|0|&!& faster.",
+      {{"8%%","16%%","24%%","32%%"}}, 4,
+      nil, {AttackSpeedDuringAbilitySkillEffect:new(player_id, 4)},
+      {{{0},{0.08},{0.16},{0.24},{0.32}}},
+      4, 1.5)
   
   local sk_continuous_suppressive_fire = Skill:new("Endless Clip",
-      "doot doot motherfucker",
-      {{"45%%"}}, 1,
+      "&or&Suppressive Fire&!& will last for as long as you hold down the ability.",
+      {}, 1,
       nil, {ContinuousSuppressiveFireSkillEffect:new(player_id)},
       {{{0},{1}}},
-      2, 3)
+      3.5, 2.5)
+  
+  local sk_roll_speed = Skill:new("Rounder Knees",
+      "&or&Tactical Dive&!& travels &y&|0|&!& more distance.",
+      {{"1.33x", "1.66x", "2.0x"}}, 3,
+      nil, {MoveSpeedDuringAbilitySkillEffect:new(player_id, 3)},
+      {{{0},{0.33},{0.66},{2.0}}},
+      0, 1.5)
+  
+  local sk_roll_cd = Skill:new("Acrobatics",
+      "On kill, refunds &y&|0|&!& of &or&Tactical Dive's&!& remaining cooldown,\nbut the base cooldown is &y&|1|&!& as long.",
+      {{"25%%", "50%%", "100%%"}, {"1.5x", "2.0x", "3.0x"}}, 3,
+      nil, {AbilityResetOnKillSkillEffect:new(player_id, 3), AbilityCooldownSkillEffect:new(player_id, 3)},
+      {{{0},{0.25},{0.5},{1.0}}, {{0},{0.5},{1.0},{2.0}}},
+      0, 2.5)
     
+  sk_health:addChildren(sk_roll_speed, sk_crit_healing)
+  sk_roll_speed:addChildren(sk_roll_cd)
+  sk_damage_fmj:addChildren(sk_point_blank_fmj)
+  sk_crit_damage:addChildren(sk_crit_healing, sk_point_blank_fmj)
+  sk_crit_healing:addChildren(sk_attack_speed_for_crit)
+  sk_attack_speed:addChildren(sk_faster_suppressive_fire)
+  sk_faster_suppressive_fire:addChildren(sk_continuous_suppressive_fire)
   
-  --skill_test:addChildren(skill_roll_speed)
-  --skill_health:addChildren(skill_roll_speed, skill_5)
-  --skill_5:addChildren(skill_6)
-  
-  skilltree:addSkill(sk_crit_healing)
   skilltree:addSkill(sk_crit_damage)
-  skilltree:addSkill(sk_health)
   skilltree:addSkill(sk_attack_speed)
+  skilltree:addSkill(sk_health)
+  skilltree:addSkill(sk_crit_healing)
   skilltree:addSkill(sk_damage_fmj)
-  skilltree:addSkill(sk_roll_speed)
-  skilltree:addSkill(sk_roll_cd)
   skilltree:addSkill(sk_point_blank_fmj)
   skilltree:addSkill(sk_attack_speed_for_crit)
+  skilltree:addSkill(sk_faster_suppressive_fire)
   skilltree:addSkill(sk_continuous_suppressive_fire)
+  skilltree:addSkill(sk_roll_speed)
+  skilltree:addSkill(sk_roll_cd)
   skilltree:refresh()
   
   return skilltree

@@ -132,8 +132,6 @@ end
 
 
 --increases speed during player ability (value of 0.5 = 50% speed increase)
---note: speed artifact breaks this so must be disabled
-Artifact.find("Spirit").disabled = true
 MoveSpeedDuringAbilitySkillEffect = SkillEffect:new(true)
 function MoveSpeedDuringAbilitySkillEffect:new(player_id, skill_index, subclass)
   local t = setmetatable({}, { __index = MoveSpeedDuringAbilitySkillEffect })
@@ -165,6 +163,53 @@ function MoveSpeedDuringAbilitySkillEffect:initEffect()
       --Cyclone.terminal.write(player:get("pHmax"))
     end
   end, true)
+end
+
+
+
+--increases attack speed during player ability (flat)
+AttackSpeedDuringAbilitySkillEffect = SkillEffect:new(true)
+function AttackSpeedDuringAbilitySkillEffect:new(player_id, skill_index, subclass)
+  local t = setmetatable({}, { __index = AttackSpeedDuringAbilitySkillEffect })
+  
+  t.values = {0}
+  t.active = true
+  t.player_id = player_id
+  t.skill_index = skill_index or 0
+  
+  t.effect_active = false
+
+  if(not subclass) then t:initEffect() end
+  return t
+end
+function AttackSpeedDuringAbilitySkillEffect:initEffect()
+  --[[registercustomcallback("onPlayerStep", function(player)
+    Cyclone.terminal.write(player:get("pHmax"))
+  end)]]
+  registercustomcallback("startAbility", function(player, skill_index)
+    if self.active and skill_index == self.skill_index and player:get("id") == self.player_id then
+      self.effect_active = true
+      player:set("attack_speed", player:get("attack_speed") + self.values[1])
+      --Cyclone.terminal.write(player:get("pHmax"))
+    end
+  end, true)
+  registercustomcallback("endAbility", function(player, skill_index)
+    if self.active and skill_index == self.skill_index and player:get("id") == self.player_id then
+      self.effect_active = false
+      player:set("attack_speed", player:get("attack_speed") - self.values[1])
+      --Cyclone.terminal.write(player:get("pHmax"))
+    end
+  end, true)
+end
+function AttackSpeedDuringAbilitySkillEffect:setValues(values)
+  if self.effect_active then
+    local player = Object.findInstance(self.player_id)
+    player:set("attack_speed", player:get("attack_speed") - self.values[1])
+    player:set("attack_speed", player:get("attack_speed") + values[1])
+  end
+  
+  self.values = values
+  self.active = (self.values[1] > 0)
 end
 
 

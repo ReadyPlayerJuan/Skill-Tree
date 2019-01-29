@@ -7,6 +7,13 @@ registercallback("onFire", function(damager)
   end
 end)
 
+--speed artifact breaks some skills so must be disabled
+Artifact.find("Spirit").disabled = true
+
+--changing 4th ability breaks some skills so must be disabled
+ItemPool.find("rare", "vanilla"):remove(Item.find("Ancient Scepter"))
+
+
 require("util")
 require("bin")
 require("skill")
